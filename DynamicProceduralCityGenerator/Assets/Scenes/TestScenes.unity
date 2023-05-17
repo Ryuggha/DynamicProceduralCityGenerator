@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 1d9d19606cefea24ba29e9607427b51f, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.297972, g: 0.3166949, b: 0.3243335, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -140,7 +140,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &337455163
 Light:
   m_ObjectHideFlags: 0
@@ -315,14 +315,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 694545286}
-  m_LocalRotation: {x: 0.27924588, y: -0, z: -0, w: 0.9602196}
-  m_LocalPosition: {x: 0, y: 6.5, z: -10}
+  m_LocalRotation: {x: 0.13052616, y: 0, z: 0, w: 0.9914449}
+  m_LocalPosition: {x: 0, y: 25.7, z: -72.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 32.43, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 15, y: 0, z: 0}
 --- !u!114 &694545290
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -367,6 +367,7 @@ GameObject:
   - component: {fileID: 2006346400}
   - component: {fileID: 2006346402}
   - component: {fileID: 2006346403}
+  - component: {fileID: 2006346404}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -413,8 +414,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0dd2856e1d1574eba32c785f4f1a8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  relaxValue: 0.526
-  size: 3
+  relaxValue: 0.5
+  size: 4
+  HexagonSize: 25
+--- !u!114 &2006346404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2006346399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da347a67746c3654097bd2b987d26f24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buildingList:
+  - {fileID: 1220250821488348872, guid: 0edbd31ff07600e40a61e328bda4f865, type: 3}
+  maxRotation: 5
+  initialDeviation: 2
+  finalDeviation: 0.1
+  deviationShrinkRate: 0.5
 --- !u!1 &2089036279
 GameObject:
   m_ObjectHideFlags: 0
