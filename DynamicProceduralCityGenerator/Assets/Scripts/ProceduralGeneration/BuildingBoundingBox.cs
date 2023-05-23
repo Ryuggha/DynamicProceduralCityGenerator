@@ -4,11 +4,15 @@ using UnityEngine;
 public class BuildingBoundingBox : MonoBehaviour
 {
     [SerializeField] GameObject colliderHolder;
+    [SerializeField] List<Transform> entranceGameObjectList;
+    GameObject elementsObject;
 
     List<Collider> colliderColliders;
 
     void Awake()
     {
+        elementsObject = transform.GetChild(0).gameObject;
+
         colliderColliders = new List<Collider>();
 
         var auxColliders = colliderHolder.GetComponents<Collider>();
@@ -19,10 +23,19 @@ public class BuildingBoundingBox : MonoBehaviour
         }
     }
 
+    public void getPositionZeroOfObject (Vector3 vector)
+    {
+        elementsObject.transform.localPosition -= vector;
+    }
+
+    public List<Transform> getEntranceList() { return entranceGameObjectList; }
+
     public HashSet<BuildingBoundingBox> getCollisions()
     {
         HashSet<BuildingBoundingBox> buildingSet = new HashSet<BuildingBoundingBox>();
         List<Collider> collisions = new List<Collider>();
+
+        Physics.SyncTransforms();
 
         foreach (var collider in colliderColliders)
         {
@@ -32,8 +45,8 @@ public class BuildingBoundingBox : MonoBehaviour
                 collisions.AddRange(Physics.OverlapBox(
                     col.center + colliderHolder.transform.position, 
                     new Vector3(col.size.x * colliderHolder.transform.localScale.x, col.size.y * colliderHolder.transform.localScale.y, col.size.z * colliderHolder.transform.localScale.z) / 2, 
-                    col.transform.rotation, 
-                    LayerMask.GetMask("Collider")
+                    col.transform.rotation,
+                    BuildingGeneration.instance.buildingGenerationLayerMask
                 ));
             }
             else if (collider.GetType() == typeof(SphereCollider))
@@ -42,7 +55,7 @@ public class BuildingBoundingBox : MonoBehaviour
                 collisions.AddRange(Physics.OverlapSphere(
                     col.center + colliderHolder.transform.position,
                     col.radius,
-                    LayerMask.GetMask("Collider")
+                    BuildingGeneration.instance.buildingGenerationLayerMask
                 ));
             }
             else if (collider.GetType() == typeof(CapsuleCollider))
@@ -57,7 +70,7 @@ public class BuildingBoundingBox : MonoBehaviour
                     col.center + colliderHolder.transform.position + direction,
                     col.center + colliderHolder.transform.position - direction,
                     col.radius,
-                    LayerMask.GetMask("Collider")
+                    BuildingGeneration.instance.buildingGenerationLayerMask
                 ));
             }
         }
