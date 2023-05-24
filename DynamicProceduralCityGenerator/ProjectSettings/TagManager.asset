@@ -16,7 +16,7 @@ TagManager:
   - 
   - Terrain
   - Entrance
-  - Ground
+  - BuildingFundations
   - Collider
   - Visual
   - RoadColliders

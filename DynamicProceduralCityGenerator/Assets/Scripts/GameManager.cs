@@ -8,7 +8,6 @@ public class GameManager : MonoBehaviour
     public static GameManager instance;
 
     [SerializeField] bool GenerateRoads = true;
-    [SerializeField] bool GenerateTerrain = true;
 
     void Awake()
     {
@@ -26,13 +25,12 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         var initialPlayerPosition = RoadGeneration.instance.InitializeRoads();
-        PlayerInteraction.instance.transform.position += initialPlayerPosition;
+        PlayerInteraction.instance.transform.position += TerrainShape.instance.getSurfacePointAtPosition(initialPlayerPosition) + new Vector3(0, 3, 0);
     }
 
     private void Update()
     {
         float delta = Time.deltaTime;
-        if (GenerateTerrain) TerrainShape.instance.Tick(delta);
         if (GenerateRoads) RoadGeneration.instance.Tick(delta);
     }
 }

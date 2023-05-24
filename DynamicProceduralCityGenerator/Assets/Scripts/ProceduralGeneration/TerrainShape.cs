@@ -6,17 +6,25 @@ public class TerrainShape : MonoBehaviour
     public static TerrainShape instance;
 
     [SerializeField] int squareResolution = 256;
+    [SerializeField] int size = 256;
     [SerializeField] float altitude;
     [SerializeField] float scale;
     [SerializeField] TerrainLayer[] terrainLayers;
     [SerializeField] Material terrainMaterial;
 
-    Dictionary<Vector2Int, Terrain> aux;
+    Dictionary<Vector2Int, Terrain> terrainDictionary;
+    
 
     private void Awake()
     {
         if (instance == null) instance = this;
         else Destroy(this);
+
+        terrainDictionary = new Dictionary<Vector2Int, Terrain>();
+        getTerrainChunkIndex(0, 0);
+        getTerrainChunkIndex(-1, 0);
+        getTerrainChunkIndex(0, -1);
+        getTerrainChunkIndex(-1, -1);
     }
 
     private void OnDestroy()
@@ -24,16 +32,26 @@ public class TerrainShape : MonoBehaviour
         if (instance == this) instance = null;
     }
 
-    private void Start()
+    public Vector2Int getTerrainChunkIndex(int x, int y)
     {
-        aux = new Dictionary<Vector2Int, Terrain>();
+        return getTerrainChunkIndex(new Vector3(x, 0, y));
+    }
 
-        addTerrain(0, 0);
-        addTerrain(0, -1);
-        addTerrain(-1, -1);
-        addTerrain(-1, 0);
+    public Vector2Int getTerrainChunkIndex(Vector2 vector)
+    {
+        return getTerrainChunkIndex(new Vector3(vector.x, 0, vector.y));
+    }
 
-        Tick(0);
+    public Vector2Int getTerrainChunkIndex(Vector3 vector)
+    {
+        Vector2Int index = new Vector2Int(Mathf.FloorToInt(vector.x / size), Mathf.FloorToInt(vector.z / size));
+        if (!terrainDictionary.ContainsKey(index)) { addTerrain(index); updateTerrain(index); }
+        return index;
+    }
+
+    private void addTerrain(Vector2Int index)
+    {
+        addTerrain(index.x, index.y);
     }
 
     private void addTerrain(int x, int y)
@@ -41,10 +59,10 @@ public class TerrainShape : MonoBehaviour
         GameObject terGo = new GameObject($"Terrain - {x}:{y}");
         terGo.layer = 9;
         terGo.transform.parent = transform;
-        terGo.transform.position = new Vector3(x * squareResolution, 0, y * squareResolution);
+        terGo.transform.position = new Vector3(x * size, 0, y * size);
 
         Terrain terrain = terGo.AddComponent<Terrain>();
-        aux.Add(new Vector2Int(x, y), terrain);
+        terrainDictionary.Add(new Vector2Int(x, y), terrain);
         terrain.terrainData = new TerrainData();
         terrain.terrainData.SetTerrainLayersRegisterUndo(terrainLayers, "Set Terrain Textures");
         terrain.materialTemplate = terrainMaterial;
@@ -53,36 +71,115 @@ public class TerrainShape : MonoBehaviour
         collider.terrainData = terrain.terrainData;
     }
 
-    public void Tick(float delta) 
+    public void generateBuildingFundations(BoxCollider plain, Vector3 doorPoint)
     {
-        foreach (var key in aux.Keys)
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+
+        float targetHeight = doorPoint.y / altitude;
+
+        Vector3[] edges = new Vector3[4];
+        edges[0] = Quaternion.AngleAxis(plain.transform.eulerAngles.y, Vector3.up) * new Vector3(plain.center.x + plain.size.x / 2, 0, plain.center.z + plain.size.z / 2) + plain.transform.position;
+        edges[1] = Quaternion.AngleAxis(plain.transform.eulerAngles.y, Vector3.up) * new Vector3(plain.center.x - plain.size.x / 2, 0, plain.center.z + plain.size.z / 2) + plain.transform.position;
+        edges[2] = Quaternion.AngleAxis(plain.transform.eulerAngles.y, Vector3.up) * new Vector3(plain.center.x - plain.size.x / 2, 0, plain.center.z - plain.size.z / 2) + plain.transform.position;
+        edges[3] = Quaternion.AngleAxis(plain.transform.eulerAngles.y, Vector3.up) * new Vector3(plain.center.x + plain.size.x / 2, 0, plain.center.z - plain.size.z / 2) + plain.transform.position;
+
+        List<Vector2Int> keys = new List<Vector2Int>();
+
+        for (int i = 0; i < edges.Length; i++)
         {
-            aux[key].terrainData = generateTerrain(aux[key].terrainData, key);
+            Vector2Int key = getTerrainChunkIndex(edges[i]);
+            if (!keys.Contains(key)) keys.Add(key);
         }
+
+        foreach (var key in keys)
+        {
+            float[,] heights = terrainDictionary[key].terrainData.GetHeights(0, 0, squareResolution, squareResolution);
+
+            for (int j = 0; j < squareResolution; j++)
+            {
+                for (int i = 0; i < squareResolution; i++)
+                {
+                    Vector2 point = new Vector2(((float)j) * size / squareResolution + key.x * squareResolution, ((float)i) * size / squareResolution + key.y * squareResolution);
+                    if (pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[1]), vector3ToVector2TopDown(edges[2])) || pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[3]), vector3ToVector2TopDown(edges[2]))) 
+                        heights[i, j] = targetHeight;
+                }
+            }
+
+            terrainDictionary[key].terrainData.SetHeights(0, 0, heights); 
+        }
+        
+
+        watch.Stop();
+
+        Debug.Log($"TODO: Optimize. This took: {watch.ElapsedMilliseconds}ms");
+    }
+
+    public static Vector2 vector3ToVector2TopDown(Vector3 v) { return new Vector2(v.x, v.z); }
+
+    private bool pointInsideTriangle2D(Vector2 point, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float d1, d2, d3;
+        bool has_neg, has_pos;
+
+        d1 = sign(point, a, b);
+        d2 = sign(point, b, c);
+        d3 = sign(point, c, a);
+
+        has_neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+        has_pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+
+        return !(has_neg && has_pos);
+    }
+
+    private float sign(Vector2 p1, Vector2 p2, Vector2 p3)
+    {
+        return (p1.x - p3.x) * (p2.y - p3.y) - (p2.x - p3.x) * (p1.y - p3.y);
+    }
+
+    private void updateTerrain(Vector2Int key)
+    {
+        terrainDictionary[key].terrainData = generateTerrain(terrainDictionary[key].terrainData, key);
     }
 
     private TerrainData generateTerrain(TerrainData data, Vector2Int coords)
     {
-        data.heightmapResolution = squareResolution + 1;
-        data.size = new Vector3(squareResolution, altitude, squareResolution);
-
-        data.SetHeights(0, 0, generateHeights(coords.x, coords.y));
+        var heights = generateHeights(coords.x, coords.y);
+        data.heightmapResolution = heights.GetLength(0);
+        Debug.Log(heights.GetLength(0));
+        data.size = new Vector3(size, altitude, size);
+        data.SetHeights(0, 0, heights);
         return data;
     }
 
     private float[,] generateHeights(int x, int y)
     {
-        float[,] heights = new float[squareResolution + 1, squareResolution + 1];
+        int r = squareResolution + 1;
 
-        for (int i = 0; i < squareResolution + 1; i++)
+        float[,] heights = new float[r, r];
+
+        for (int i = 0; i < r; i++)
         {
-            for (int j = 0; j < squareResolution + 1; j++)
+            for (int j = 0; j < r; j++)
             {
-                heights[j, i] = Mathf.PerlinNoise(((float)i / (squareResolution + 1) + x) * scale, ((float)j / (squareResolution + 1) + y) * scale);
+                heights[j, i] = Mathf.PerlinNoise(((float)i / (squareResolution) + x) * scale, ((float)j / (squareResolution) + y) * scale);
             }
         }
 
         return heights;
+    }
+
+    public Vector3 getSurfacePointAtPosition(Vector2 vector)
+    {
+        return getSurfacePointAtPosition(new Vector3(vector.x, 0, vector.y));
+    }
+
+    public Vector3 getSurfacePointAtPosition(Vector3 vector)
+    {
+        Vector2Int index = getTerrainChunkIndex(vector);
+
+        float height = terrainDictionary[index].SampleHeight(vector);
+
+        return new Vector3(vector.x, height, vector.z);
     }
 
 }

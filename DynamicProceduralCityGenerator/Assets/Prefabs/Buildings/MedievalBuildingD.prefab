@@ -1,5 +1,50 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &427162471546220683
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7320345343894643806}
+  - component: {fileID: 6427377470516454852}
+  m_Layer: 0
+  m_Name: Floor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7320345343894643806
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427162471546220683}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4791639288575484043}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &6427377470516454852
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427162471546220683}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 8.5, y: 0, z: 10}
+  m_Center: {x: -0.4, y: -0.09, z: 0.27670455}
 --- !u!1 &1220250821488348872
 GameObject:
   m_ObjectHideFlags: 0
@@ -48,6 +93,7 @@ MonoBehaviour:
   colliderHolder: {fileID: 5314303159984846687}
   entranceGameObjectList:
   - {fileID: 6301908880456135279}
+  floorHolder: {fileID: 427162471546220683}
 --- !u!1 &2095579375415952181
 GameObject:
   m_ObjectHideFlags: 0
@@ -142,6 +188,7 @@ Transform:
   - {fileID: 1462318503078482893}
   - {fileID: 905882102588762072}
   - {fileID: 6467370953310662666}
+  - {fileID: 7320345343894643806}
   m_Father: {fileID: 7094544806300128477}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

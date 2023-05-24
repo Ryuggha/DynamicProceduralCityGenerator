@@ -88,16 +88,29 @@ public class RoadGeneration : MonoBehaviour
 
     public void generateRoadColliders(Road road)
     {
+        SphereCollider col;
         GameObject colGO = new GameObject($"Road - {road.getPositionStart()}:{road.getPositionEnd()}");
         colGO.layer = 14;
         colGO.transform.parent = transform;
         colGO.transform.position = road.getPositionStart();
         colGO.transform.LookAt(road.getPositionEnd(), Vector3.up);
 
-        BoxCollider col = colGO.AddComponent<BoxCollider>();
-        col.isTrigger = true;
         Vector3 roadVector = road.getPositionEnd() - road.getPositionStart();
-        col.center = new Vector3(0, 1, roadVector.magnitude / 2);
-        col.size = new Vector3(road.getWidth() * 0.9f, 2, roadVector.magnitude);
+
+        for (float i = 0; i < roadVector.magnitude; i += road.getWidth() + .75f)
+        {
+            col = colGO.AddComponent<SphereCollider>();
+            col.isTrigger = true;
+            col.center = new Vector3(0, 0, i);
+            col.center = TerrainShape.instance.getSurfacePointAtPosition(col.center);
+            Debug.LogWarning("TODO: Height not correct");
+            col.radius = road.getWidth() * .75f;
+        }
+
+        col = colGO.AddComponent<SphereCollider>();
+        col.isTrigger = true;
+        col.center = new Vector3(0, roadVector.magnitude);
+        col.center = TerrainShape.instance.getSurfacePointAtPosition(col.center);
+        col.radius = road.getWidth() * .75f;
     }
 }

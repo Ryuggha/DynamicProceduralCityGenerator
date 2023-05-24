@@ -5,6 +5,7 @@ public class BuildingBoundingBox : MonoBehaviour
 {
     [SerializeField] GameObject colliderHolder;
     [SerializeField] List<Transform> entranceGameObjectList;
+    [SerializeField] GameObject floorHolder;
     GameObject elementsObject;
 
     List<Collider> colliderColliders;
@@ -29,6 +30,28 @@ public class BuildingBoundingBox : MonoBehaviour
     }
 
     public List<Transform> getEntranceList() { return entranceGameObjectList; }
+
+    public List<BoxCollider> getFloorColliders()
+    {
+        List<BoxCollider> boxColliders = new List<BoxCollider>();
+
+        var colliders = floorHolder.GetComponentsInChildren<Collider>();
+
+        foreach (var collider in colliders)
+        {
+            if (collider.GetType() == typeof(BoxCollider))
+            {
+                BoxCollider col = (BoxCollider)collider;
+                boxColliders.Add(col);
+            }
+            else
+            {
+                Debug.LogError($"Collider of type {collider.GetType()} not supported");
+            }
+        }
+
+        return boxColliders;
+    }
 
     public HashSet<BuildingBoundingBox> getCollisions()
     {
