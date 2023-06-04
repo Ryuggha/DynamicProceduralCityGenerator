@@ -25,8 +25,8 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 1d9d19606cefea24ba29e9607427b51f, type: 2}
+  m_SubtractiveShadowColor: {r: 0.41960788, g: 0.4784314, b: 0.627451, a: 1}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 04610aa713297ce4e91f28d4441cee85, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -34,11 +34,11 @@ RenderSettings:
   m_SpotCookie: {fileID: 10001, guid: 0000000000000000e000000000000000, type: 0}
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
-  m_ReflectionBounces: 1
+  m_ReflectionBounces: 5
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.3407291, g: 0.38840297, b: 0.43955526, a: 1}
+  m_Sun: {fileID: 337455163}
+  m_IndirectSpecularColor: {r: 0.3993497, g: 0.42468378, b: 0.46018368, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -97,8 +97,10 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
-  m_LightingSettings: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: ed981fdaaba1e9c468b4f8efb38fd1af,
+    type: 2}
+  m_LightingSettings: {fileID: 4890085278179872738, guid: c2a9735490474ea40b379d74d983765a,
+    type: 2}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
@@ -164,8 +166,8 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 1, g: 0.9215687, b: 0.8352942, a: 1}
+  m_Intensity: 2.5
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -204,10 +206,10 @@ Light:
     serializedVersion: 2
     m_Bits: 4294967295
   m_RenderingLayerMask: 1
-  m_Lightmapping: 4
+  m_Lightmapping: 1
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
+  m_BounceIntensity: 1.5
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
@@ -594,12 +596,14 @@ MonoBehaviour:
   - {fileID: 1220250821488348872, guid: 29452cb30e68d0646abb53006c3544d3, type: 3}
   - {fileID: 1220250821488348872, guid: b5781d5b0e11b95409b014c38b5a3e44, type: 3}
   maxRotation: 5
-  initialDeviation: 2
+  initialDeviation: 0.1
   finalDeviation: 0.1
   deviationShrinkRate: 0.5
   buildingGenerationLayerMask:
     serializedVersion: 2
     m_Bits: 20480
+  maxNumberOfGenerationTries: 5
+  test: {fileID: 9223180014589634545, guid: dc6f24a092169c448a832e7d1e6bf86b, type: 3}
 --- !u!114 &2006346405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -629,45 +633,45 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0.43049338
     - serializedVersion: 3
-      time: 0.23397419
-      value: 0.056966987
-      inSlope: 1.0916666
-      outSlope: 7.945552
+      time: 0.28509113
+      value: 0.0038969181
+      inSlope: -0.17541985
+      outSlope: 15.637165
       tangentMode: 65
       weightedMode: 3
-      inWeight: 0.18788318
+      inWeight: 0.31380942
       outWeight: 0.8212506
     - serializedVersion: 3
       time: 0.34479544
       value: 0.9375029
-      inSlope: 7.945552
-      outSlope: -3.8038113
+      inSlope: 15.637165
+      outSlope: -20.322239
       tangentMode: 69
       weightedMode: 3
       inWeight: 0.47871026
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 0.5050333
-      value: 0.32798827
-      inSlope: -3.8038113
-      outSlope: -1.1297508
-      tangentMode: 5
+      time: 0.39056295
+      value: 0.0074044764
+      inSlope: -20.322239
+      outSlope: 0.007773994
+      tangentMode: 69
       weightedMode: 3
       inWeight: 0.33333337
       outWeight: 0.33333316
     - serializedVersion: 3
-      time: 0.9999936
-      value: 0.16037452
-      inSlope: 0.022987947
-      outSlope: 0.022987947
+      time: 1.0102315
+      value: 0.012221776
+      inSlope: -0.1057399
+      outSlope: -0.1057399
       tangentMode: 0
       weightedMode: 3
-      inWeight: 0.33333343
+      inWeight: 0.35362417
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  TEST_ActivationDistance: 30
+  TEST_ActivationDistance: 50
 --- !u!114 &2006346406
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -683,7 +687,7 @@ MonoBehaviour:
   squareResolution: 256
   size: 256
   altitude: 8
-  scale: 5
+  scale: 4
   terrainLayers:
   - {fileID: 8574412962073106934, guid: 8a03186f926f24349a2375d6db874876, type: 2}
   - {fileID: 8574412962073106934, guid: 085305df2d1e7a54f9c5089b6157136f, type: 2}

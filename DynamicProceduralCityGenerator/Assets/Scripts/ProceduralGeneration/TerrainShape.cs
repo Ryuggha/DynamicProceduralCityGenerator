@@ -21,20 +21,15 @@ public class TerrainShape : MonoBehaviour
         else Destroy(this);
 
         terrainDictionary = new Dictionary<Vector2Int, Terrain>();
-        getTerrainChunkIndex(0, 0);
-        getTerrainChunkIndex(-1, 0);
-        getTerrainChunkIndex(0, -1);
-        getTerrainChunkIndex(-1, -1);
+        addTerrain(0, 0);
+        addTerrain(-1, 0);
+        addTerrain(0, -1);
+        addTerrain(-1, -1);
     }
 
     private void OnDestroy()
     {
         if (instance == this) instance = null;
-    }
-
-    public Vector2Int getTerrainChunkIndex(int x, int y)
-    {
-        return getTerrainChunkIndex(new Vector3(x, 0, y));
     }
 
     public Vector2Int getTerrainChunkIndex(Vector2 vector)
@@ -45,9 +40,10 @@ public class TerrainShape : MonoBehaviour
     public Vector2Int getTerrainChunkIndex(Vector3 vector)
     {
         Vector2Int index = new Vector2Int(Mathf.FloorToInt(vector.x / size), Mathf.FloorToInt(vector.z / size));
-        if (!terrainDictionary.ContainsKey(index)) { addTerrain(index); updateTerrain(index); }
+        if (!terrainDictionary.ContainsKey(index)) { addTerrain(index); }
         return index;
     }
+
 
     private void addTerrain(Vector2Int index)
     {
@@ -56,19 +52,24 @@ public class TerrainShape : MonoBehaviour
 
     private void addTerrain(int x, int y)
     {
+        var index = new Vector2Int(x, y);
+        if (terrainDictionary.ContainsKey(index)) throw new System.Exception("This Index is already in existance");
+
         GameObject terGo = new GameObject($"Terrain - {x}:{y}");
         terGo.layer = 9;
         terGo.transform.parent = transform;
         terGo.transform.position = new Vector3(x * size, 0, y * size);
 
         Terrain terrain = terGo.AddComponent<Terrain>();
-        terrainDictionary.Add(new Vector2Int(x, y), terrain);
+        terrainDictionary.Add(index, terrain);
         terrain.terrainData = new TerrainData();
         terrain.terrainData.SetTerrainLayersRegisterUndo(terrainLayers, "Set Terrain Textures");
         terrain.materialTemplate = terrainMaterial;
 
         TerrainCollider collider = terGo.AddComponent<TerrainCollider>();
         collider.terrainData = terrain.terrainData;
+
+        updateTerrain(index);
     }
 
     public void generateBuildingFundations(BoxCollider plain, Vector3 doorPoint)
@@ -91,6 +92,10 @@ public class TerrainShape : MonoBehaviour
             if (!keys.Contains(key)) keys.Add(key);
         }
 
+        Bounds bounds = plain.bounds;
+
+
+
         foreach (var key in keys)
         {
             float[,] heights = terrainDictionary[key].terrainData.GetHeights(0, 0, squareResolution, squareResolution);
@@ -111,7 +116,7 @@ public class TerrainShape : MonoBehaviour
 
         watch.Stop();
 
-        Debug.Log($"TODO: Optimize. This took: {watch.ElapsedMilliseconds}ms");
+        Debug.Log($"TODO: Optimize. This took: 25-75 ms");
     }
 
     public static Vector2 vector3ToVector2TopDown(Vector3 v) { return new Vector2(v.x, v.z); }
@@ -145,7 +150,6 @@ public class TerrainShape : MonoBehaviour
     {
         var heights = generateHeights(coords.x, coords.y);
         data.heightmapResolution = heights.GetLength(0);
-        Debug.Log(heights.GetLength(0));
         data.size = new Vector3(size, altitude, size);
         data.SetHeights(0, 0, heights);
         return data;
@@ -161,7 +165,7 @@ public class TerrainShape : MonoBehaviour
         {
             for (int j = 0; j < r; j++)
             {
-                heights[j, i] = Mathf.PerlinNoise(((float)i / (squareResolution) + x) * scale, ((float)j / (squareResolution) + y) * scale);
+                heights[j, i] = Mathf.PerlinNoise(((x * size) + (((float)i) * size / squareResolution)) * scale / 200, ((y * size) + (((float)j) * size / squareResolution)) * scale / 200);
             }
         }
 

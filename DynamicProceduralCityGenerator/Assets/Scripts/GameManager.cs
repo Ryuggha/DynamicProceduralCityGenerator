@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         var initialPlayerPosition = RoadGeneration.instance.InitializeRoads();
-        PlayerInteraction.instance.transform.position += TerrainShape.instance.getSurfacePointAtPosition(initialPlayerPosition) + new Vector3(0, 3, 0);
+        PlayerInteraction.instance.transform.GetChild(0).position = TerrainShape.instance.getSurfacePointAtPosition(initialPlayerPosition) + new Vector3(0, 3, 0);
     }
 
     private void Update()

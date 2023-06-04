@@ -68,8 +68,8 @@ public class Road
         if (obj.GetType() != this.GetType()) return false;
         var other = obj as Road;
         if (other == null) return false;
-        if ((other.intersectionStart == null) == (this.intersectionStart == null)) return false;
-        if ((other.intersectionEnd == null) == (this.intersectionEnd == null)) return false;
+        if ((other.intersectionStart == null) != (this.intersectionStart == null)) return false;
+        if ((other.intersectionEnd == null) != (this.intersectionEnd == null)) return false;
         if (this.intersectionStart != null && !other.intersectionStart.Equals(this.intersectionStart)) return false;
         if (this.intersectionEnd != null && !other.intersectionEnd.Equals(this.intersectionEnd)) return false;
         return true;
@@ -194,7 +194,6 @@ public class Road
 
         public override bool Equals(object obj)
         {
-            Debug.Log(obj.GetType() + " : " + this.GetType());
             if (obj.GetType() != this.GetType()) return false;
             var other = obj as Intersection;
             if (other == null) return false;

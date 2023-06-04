@@ -11,7 +11,7 @@ public class RoadGeneration : MonoBehaviour
     [SerializeField] [Range(0, 15)] public float maxWidth;
     [SerializeField] [Range(0, 15)] public float minWidth;
     [SerializeField] [Range(0, 15)] float initialWidth;
-    [SerializeField] [Range(0, 3)] public float straightRoadsBias;
+    [SerializeField] [Range(0, 6)] public float straightRoadsBias;
     [SerializeField] AnimationCurve roadDiversionCurve;
 
     [SerializeField] float TEST_ActivationDistance = 20;
@@ -19,6 +19,7 @@ public class RoadGeneration : MonoBehaviour
     public AnimationCurveSampler curveSampler;
 
     List<Road> roadList;
+    List<Road> openRoadList;
 
     private void Awake()
     {
@@ -35,29 +36,38 @@ public class RoadGeneration : MonoBehaviour
     {
         curveSampler = new AnimationCurveSampler(roadDiversionCurve);
         roadList = new List<Road>();
+        openRoadList = new List<Road>();
 
         Point startingPoint = HexagonalGrid.instance.getFirstPoint();
 
-        roadList.Add(new Road(startingPoint.lines[0], initialWidth));
+        Road firstRoad = new Road(startingPoint.lines[0], initialWidth);
+        roadList.Add(firstRoad);
+        openRoadList.Add(firstRoad);
 
         return (roadList[0].getPositionEnd() - roadList[0].getPositionStart()) / 2 + roadList[0].getPositionStart();
     }
 
     public void Tick(float delta)
     {
-        if (roadList == null) return;
-        for (int i = 0; i < roadList.Count; i++)
+        if (openRoadList == null) return;
+
+
+        List<Road> roadsToOpen = new List<Road>(openRoadList);
+
+        for (int i = 0; i < roadsToOpen.Count; i++)
         {
-            Road road = roadList[i];
-            if (road.hasOpenRoads())
-            {
-                if (
-                    (road.getPositionStart() - PlayerInteraction.instance.getPlayerPosition()).magnitude < TEST_ActivationDistance ||
+            Road road = roadsToOpen[i];
+            if (    (road.getPositionStart() - PlayerInteraction.instance.getPlayerPosition()).magnitude < TEST_ActivationDistance ||
                     (road.getPositionEnd() - PlayerInteraction.instance.getPlayerPosition()).magnitude < TEST_ActivationDistance)
-                {   
-                    if (road != null) roadList.AddRange(road.expand());
+            {
+                if (road != null && road.hasOpenRoads())
+                {
+                    var roads = road.expand();
+                    roadList.AddRange(roads);
+                    openRoadList.AddRange(roads);
                 }
             }
+            
         }
     }
 
@@ -77,7 +87,6 @@ public class RoadGeneration : MonoBehaviour
         {
             if (r.hasOpenRoads()) return r; 
         }
-
         return null;
     }
     
@@ -88,6 +97,7 @@ public class RoadGeneration : MonoBehaviour
 
     public void generateRoadColliders(Road road)
     {
+        float height;
         SphereCollider col;
         GameObject colGO = new GameObject($"Road - {road.getPositionStart()}:{road.getPositionEnd()}");
         colGO.layer = 14;
@@ -97,20 +107,21 @@ public class RoadGeneration : MonoBehaviour
 
         Vector3 roadVector = road.getPositionEnd() - road.getPositionStart();
 
-        for (float i = 0; i < roadVector.magnitude; i += road.getWidth() + .75f)
+        for (float i = 0; i < roadVector.magnitude; i += road.getWidth() * .9f / 1.7f)
         {
             col = colGO.AddComponent<SphereCollider>();
             col.isTrigger = true;
             col.center = new Vector3(0, 0, i);
-            col.center = TerrainShape.instance.getSurfacePointAtPosition(col.center);
-            Debug.LogWarning("TODO: Height not correct");
-            col.radius = road.getWidth() * .75f;
+            height = TerrainShape.instance.getSurfacePointAtPosition(col.bounds.center).y;
+            col.center = new Vector3(0, height, i);
+            col.radius = road.getWidth() * .9f / 2;
         }
 
         col = colGO.AddComponent<SphereCollider>();
         col.isTrigger = true;
-        col.center = new Vector3(0, roadVector.magnitude);
-        col.center = TerrainShape.instance.getSurfacePointAtPosition(col.center);
-        col.radius = road.getWidth() * .75f;
+        col.center = new Vector3(0, 0, roadVector.magnitude);
+        height = TerrainShape.instance.getSurfacePointAtPosition(col.bounds.center).y;
+        col.center = new Vector3(0, height, roadVector.magnitude);
+        col.radius = road.getWidth() * .9f / 2;
     }
 }
