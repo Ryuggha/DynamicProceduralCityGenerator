@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static Road;
 
 public class Point
 {
@@ -24,10 +25,11 @@ public class Point
 
     public override bool Equals(object obj)
     {
+        if (obj == null) return false;
         if (obj.GetType() != this.GetType()) return false;
         var other = obj as Point;
         if (other == null) return false;
-        return this.location.Equals(other.location);
+        return (this.location-other.location).magnitude < HexagonalGrid.instance.pointEqualityMaxDistance;
     }
 
     public override int GetHashCode()
@@ -46,6 +48,70 @@ public class Point
 
         r.lines = new List<Line>(this.lines);
         r.polygons = new List<Poly>(this.polygons);
+
+        return r;
+    }
+
+    public List<Line> fuse(Point other)
+    {
+        List<Line> r = new List<Line>();
+
+        if (!this.Equals(other) || this == other) return r;
+
+        if (other.usedByCity) this.usedByCity = true;
+
+        foreach (var line in other.lines)
+        {
+            if (line.p1 == other) line.p1 = this;
+            else if (line.p2 == other) line.p2 = this;
+            if (lines.Contains(line))
+            {
+                Line realLine = lines[lines.IndexOf(line)];
+
+                Point otherPointRealLine = realLine.p1;
+                if (realLine.p1 == this) otherPointRealLine = realLine.p2;
+
+                Point otherPointOldLine = line.p1;
+                if (line.p1 == other) otherPointOldLine = line.p2;
+
+                if (otherPointRealLine == otherPointOldLine)
+                {
+                    if (line.usedByCity) realLine.usedByCity = true;
+                    for (int i = otherPointOldLine.lines.Count - 1; i >= 0; i--)
+                    {
+                        if (otherPointOldLine.lines[i] == line) 
+                        {
+                            otherPointOldLine.lines[i].p1 = null;
+                            otherPointOldLine.lines[i].p2 = null;
+                            otherPointOldLine.lines.RemoveAt(i);
+                        }
+                    }
+                    r.Add(line);
+                }
+                else
+                {
+                    if (line.p1 == other) line.p1 = this;
+                    else line.p2 = this;
+                }
+            }
+
+            lines.Add(line);
+
+            foreach (var poly in line.polygons)
+            {
+                if (!polygons.Contains(poly))
+                {
+                    polygons.Add(poly);
+                    for (int i = 0; i < poly.points.Count; i++)
+                    {
+                        if (poly.points[i] == other) poly.points[i] = this;
+                    }
+                }
+            }
+        }
+
+        other.lines.Clear();
+        other.polygons.Clear();
 
         return r;
     }

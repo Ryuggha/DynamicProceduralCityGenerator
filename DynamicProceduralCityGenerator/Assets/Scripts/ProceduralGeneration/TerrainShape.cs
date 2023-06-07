@@ -13,12 +13,17 @@ public class TerrainShape : MonoBehaviour
     [SerializeField] Material terrainMaterial;
 
     Dictionary<Vector2Int, Terrain> terrainDictionary;
-    
+    Dictionary<Vector2Int, float[,]> auxHeights;
+    HashSet<Vector2Int> changedTerrains;
 
     private void Awake()
     {
+
         if (instance == null) instance = this;
         else Destroy(this);
+
+        changedTerrains = new HashSet<Vector2Int>();
+        auxHeights = new Dictionary<Vector2Int, float[,]>();
 
         terrainDictionary = new Dictionary<Vector2Int, Terrain>();
         addTerrain(0, 0);
@@ -74,8 +79,6 @@ public class TerrainShape : MonoBehaviour
 
     public void generateBuildingFundations(BoxCollider plain, Vector3 doorPoint)
     {
-        var watch = System.Diagnostics.Stopwatch.StartNew();
-
         float targetHeight = doorPoint.y / altitude;
 
         Vector3[] edges = new Vector3[4];
@@ -92,31 +95,35 @@ public class TerrainShape : MonoBehaviour
             if (!keys.Contains(key)) keys.Add(key);
         }
 
-        Bounds bounds = plain.bounds;
-
-
-
         foreach (var key in keys)
         {
-            float[,] heights = terrainDictionary[key].terrainData.GetHeights(0, 0, squareResolution, squareResolution);
+            changedTerrains.Add(key);
+
+            if (!auxHeights.ContainsKey(key)) auxHeights.Add(key, terrainDictionary[key].terrainData.GetHeights(0, 0, squareResolution, squareResolution));
 
             for (int j = 0; j < squareResolution; j++)
             {
                 for (int i = 0; i < squareResolution; i++)
                 {
                     Vector2 point = new Vector2(((float)j) * size / squareResolution + key.x * squareResolution, ((float)i) * size / squareResolution + key.y * squareResolution);
-                    if (pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[1]), vector3ToVector2TopDown(edges[2])) || pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[3]), vector3ToVector2TopDown(edges[2]))) 
-                        heights[i, j] = targetHeight;
+                    if (pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[1]), vector3ToVector2TopDown(edges[2])) || pointInsideTriangle2D(point, vector3ToVector2TopDown(edges[0]), vector3ToVector2TopDown(edges[3]), vector3ToVector2TopDown(edges[2])))
+                        auxHeights[key][i, j] = targetHeight;
                 }
             }
-
-            terrainDictionary[key].terrainData.SetHeights(0, 0, heights); 
         }
-        
+    }
 
-        watch.Stop();
+    private void LateUpdate()
+    {
+        if (changedTerrains.Count > 0)
+        {
+            foreach (var key in changedTerrains)
+            {
+                terrainDictionary[key].terrainData.SetHeights(0, 0, auxHeights[key]);
+            }
 
-        Debug.Log($"TODO: Optimize. This took: 25-75 ms");
+            changedTerrains.Clear();
+        }
     }
 
     public static Vector2 vector3ToVector2TopDown(Vector3 v) { return new Vector2(v.x, v.z); }

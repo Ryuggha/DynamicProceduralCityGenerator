@@ -32,6 +32,17 @@ public class RoadGeneration : MonoBehaviour
         if (instance == this) instance = null;
     }
 
+    private void Update()
+    {
+        int c = 0;
+        foreach (var road in roadList)
+        {
+            c+=road.getVoidIntersections();
+        }
+
+        print(c);
+    }
+
     public Vector3 InitializeRoads()
     {
         curveSampler = new AnimationCurveSampler(roadDiversionCurve);
@@ -75,8 +86,8 @@ public class RoadGeneration : MonoBehaviour
     {
         foreach (var road in roadList)
         {
-            if (road.getPositionStart().Equals(point.getLocationVector3())) return road;
-            if (road.getPositionEnd().Equals(point.getLocationVector3())) return road;
+            if ((road.getPositionStart() - point.getLocationVector3()).magnitude < HexagonalGrid.instance.pointEqualityMaxDistance) return road;
+            if ((road.getPositionEnd() - point.getLocationVector3()).magnitude < HexagonalGrid.instance.pointEqualityMaxDistance) return road;
         }
         return null;
     }

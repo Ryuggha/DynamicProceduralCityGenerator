@@ -17,7 +17,6 @@ public class BuildingGeneration : MonoBehaviour
     [SerializeField] int maxNumberOfGenerationTries = 3;
 
     BuildingBoundingBox lastBuildingBuilt;
-    public GameObject test;
 
     private void Awake()
     {
@@ -79,8 +78,6 @@ public class BuildingGeneration : MonoBehaviour
                 }
             }
         } while (buildingBuilt);
-
-        Debug.Log("TODO: Test doing a second try to the other direction");
     }
 
     public static Vector3 getPositionWithY0(Vector3 vector) { return new Vector3(vector.x, 0, vector.z); }

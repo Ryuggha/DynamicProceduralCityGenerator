@@ -47,6 +47,8 @@ public class Road
     {
         List<Road> newRoads = new List<Road>();
 
+        HexagonalGrid.instance.checkNextHex(intersectionEnd.point.getLocationVector3());
+
         if (!intersectionStart.alreadyPopulated) newRoads.AddRange(intersectionStart.expand(this));
         if (!intersectionEnd.alreadyPopulated) newRoads.AddRange(intersectionEnd.expand(this));
 
@@ -62,6 +64,14 @@ public class Road
     }
 
     public bool getPopulated() { return this.populated; }
+
+    public int getVoidIntersections()
+    {
+        int c = 0;
+        if (intersectionStart.point.lines.Count == 0) c++;
+        if (intersectionEnd.point.lines.Count == 0) c++;
+        return c;
+    }
 
     public override bool Equals(object obj)
     {
@@ -175,6 +185,8 @@ public class Road
                 Line line = possibleLines[i];
                 if (end.usedByCity)
                 {
+                    if (RoadGeneration.instance.findIntersection(end) == null)
+                        Debug.Log("t");
                     Road auxRoad = RoadGeneration.instance.findIntersection(end);
                     Intersection endIntersection = auxRoad.getIntersectionStart();
                     if (!endIntersection.getPosition().Equals(end.getLocationVector3())) endIntersection = auxRoad.getIntersectionEnd();

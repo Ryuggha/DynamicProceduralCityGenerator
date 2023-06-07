@@ -562,6 +562,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   GenerateRoads: 1
+  o1: {fileID: 0}
+  o2: {fileID: 0}
+  o3: {fileID: 0}
 --- !u!114 &2006346403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -574,7 +577,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d0dd2856e1d1574eba32c785f4f1a8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  relaxValue: 0.507
+  pointEqualityMaxDistance: 0.5
+  relaxValue: 0.5
   size: 4
   HexagonSize: 40
 --- !u!114 &2006346404
@@ -596,14 +600,13 @@ MonoBehaviour:
   - {fileID: 1220250821488348872, guid: 29452cb30e68d0646abb53006c3544d3, type: 3}
   - {fileID: 1220250821488348872, guid: b5781d5b0e11b95409b014c38b5a3e44, type: 3}
   maxRotation: 5
-  initialDeviation: 0.1
+  initialDeviation: 3
   finalDeviation: 0.1
-  deviationShrinkRate: 0.5
+  deviationShrinkRate: 0.2
   buildingGenerationLayerMask:
     serializedVersion: 2
     m_Bits: 20480
   maxNumberOfGenerationTries: 5
-  test: {fileID: 9223180014589634545, guid: dc6f24a092169c448a832e7d1e6bf86b, type: 3}
 --- !u!114 &2006346405
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -671,7 +674,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  TEST_ActivationDistance: 50
+  TEST_ActivationDistance: 20
 --- !u!114 &2006346406
 MonoBehaviour:
   m_ObjectHideFlags: 0

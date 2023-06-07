@@ -6,6 +6,8 @@ public class HexagonalGrid : MonoBehaviour
 {
     public static HexagonalGrid instance;
 
+    [SerializeField] public float pointEqualityMaxDistance = .1f;
+
     [SerializeField] [Range(0, 1)] float relaxValue;
     [SerializeField] [Range(0, 5)] int size;
     [SerializeField] float HexagonSize = 25;
@@ -43,15 +45,31 @@ public class HexagonalGrid : MonoBehaviour
 
     public void generateChunk(int x, int y)
     {
-        Vector2Int position = new Vector2Int(x, y);
-
-        if (hexagonChunks.ContainsKey(position)) Debug.LogWarning("This chunk has already been generated");
-        else
-        {
-            hexagonChunks.Add(position, new HexagonChunk(HexagonSize, size, relaxValue, position));
-        }
+        generateChunk(new Vector2Int(x, y));
     }
 
+    public void generateChunk(Vector2Int key)
+    {
+        if (hexagonChunks.ContainsKey(key)) Debug.LogWarning("This chunk has already been generated");
+        else
+        {
+            var hex = new HexagonChunk(HexagonSize, size, relaxValue, key);
+            hexagonChunks.Add(key, hex);
+            for (int i = 0; i < 6; i++)
+            {
+                Vector2Int fuseKey = key + new Vector2Int(0, -1);
+                if (i == 1) fuseKey = key + new Vector2Int(1, key.x % 2 == 0 ? -1 : 0);
+                else if (i == 2) fuseKey = key + new Vector2Int(1, key.x % 2 == 0 ? 0 : 1);
+                else if (i == 3) fuseKey = key + new Vector2Int(0, 1);
+                else if (i == 4) fuseKey = key + new Vector2Int(-1, key.x % 2 == 0 ? 0 : 1);
+                else if (i == 5) fuseKey = key + new Vector2Int(-1, key.x % 2 == 0 ? -1 : 0);
+                if (hexagonChunks.ContainsKey(fuseKey))
+                {
+                    hex.fuseWithNeighbor(hexagonChunks[fuseKey], i);
+                }
+            }
+        }
+    }
 
     public Vector2Int getChunkByPoint(Vector3 point)
     {
@@ -69,6 +87,46 @@ public class HexagonalGrid : MonoBehaviour
         }
 
         return indexChunk;
+    }
+
+    public void checkNextHex(Vector3 point)
+    {
+        Vector2Int key = getChunkByPoint(point);
+        Vector3 realDirection = (point - hexagonChunks[key].getStartingPositionVector3()).normalized;
+
+        Vector2Int discreteDirection = new Vector2Int(0, 1);
+        float angle = Vector3.Angle(realDirection, new Vector3(0, 0, 1));
+
+        for (int i = 1; i < 6; i++)
+        {
+            Vector3 directionToTest;
+            Vector2Int discreteDirectionToTest;
+            switch(i)
+            {
+                case 1:
+                    directionToTest = new Vector3(0.866f, 0, 0.5f); discreteDirectionToTest = new Vector2Int(1, key.x % 2 == 0 ? 0 : 1); break;
+                case 2:
+                    directionToTest = new Vector3(0.866f, 0, -0.5f); discreteDirectionToTest = new Vector2Int(1, key.x % 2 == 0 ? -1 : 0); break;
+                case 3:
+                    directionToTest = new Vector3(0, 0, -1); discreteDirectionToTest = new Vector2Int(0, -1); break;
+                case 4:
+                    directionToTest = new Vector3(-0.866f, 0, -0.5f); discreteDirectionToTest = new Vector2Int(-1, key.x % 2 == 0 ? -1 : 0); break;
+                default:
+                    directionToTest = new Vector3(-0.866f, 0, 0.5f); discreteDirectionToTest = new Vector2Int(-1, key.x % 2 == 0 ? 0 : 1); break;
+            }
+
+            float angleTested = Vector3.Angle(realDirection, directionToTest);
+            if (angleTested < angle)
+            {
+                angle = angleTested;
+                discreteDirection = discreteDirectionToTest;
+            }
+        }
+
+        if (!hexagonChunks.ContainsKey(key + discreteDirection))
+        {
+            generateChunk(key + discreteDirection);
+        }
     }
 
     public Point getFirstPoint()
@@ -100,6 +158,20 @@ public class HexagonalGrid : MonoBehaviour
         Invoke("drawLines", refreshTime);
     }*/
 
+    private void drawOnlyOuterLines(int x, int y) {
+        var points = hexagonChunks[new Vector2Int(x, y)].outerPoints;
+        int count = 0;
+        float var = .1f;
+        foreach (var point in points)
+        {
+            foreach (var line in point.lines)
+            {
+                Debug.DrawLine(new Vector3(line.p1.location.x, count*var, line.p1.location.y), new Vector3(line.p2.location.x, count * var, line.p2.location.y), Color.red, 300);
+                count++;
+            }
+        }
+    }
+
     private void drawAllPolygons(float f)
     {
         bool refresh = false;
@@ -111,7 +183,14 @@ public class HexagonalGrid : MonoBehaviour
         {
             foreach (var poly in chunk.polygons)
             {
-                poly.Draw(refreshTime);
+                //poly.Draw(refreshTime);
+            }
+            foreach (var point in chunk.points)
+            {
+                foreach (var line in point.lines)
+                {
+                    Debug.DrawLine(new Vector3(line.p1.location.x, 0, line.p1.location.y), new Vector3(line.p2.location.x, 0, line.p2.location.y), Color.white, refreshTime);
+                }
             }
         }
         if (refresh) Invoke("drawAllPolygons", refreshTime);
@@ -130,7 +209,7 @@ public class HexagonalGrid : MonoBehaviour
         float W, H, relaxValue;
         Vector2 startingPosition;
         public Point[] outerPoints;
-        private float size;
+        private int size;
                 
         public HexagonChunk (float HexagonSize, int size, float relaxValue, Vector2Int index)
         {
@@ -142,10 +221,8 @@ public class HexagonalGrid : MonoBehaviour
             startingPosition = new Vector2((size + 1) * W * index.x * .75f, (size + 1) * H * index.y + (index.x % 2 == 0 ? 0 : (size + 1) * .5f * H));
 
             points = new List<Point>();
-            //createHexOfHexes(3);
 
             createHexOfTriangles(size);
-            //drawLines();
 
             countLines();
             countTriangles();
@@ -164,6 +241,30 @@ public class HexagonalGrid : MonoBehaviour
             organizeOuterPoints();
         }
 
+        public void fuseWithNeighbor(HexagonChunk neighbor, int index) //Index value 0:S - 1:SE - 2:NE - 3:N - 4:NW - 5:SW
+        {
+            int mod = (size + 1) * 2;
+            int firstIndex = index == 0 ? outerPoints.Length - (size + 1) : index * (size + 1) * 2 - (size + 1);
+            for (int auxIndex = firstIndex; auxIndex <= firstIndex + (size + 1) * 2; auxIndex++)
+            {
+                int i = auxIndex % outerPoints.Length;
+                int j = ((i + (size + 1) * 2 * 3) + mod) % outerPoints.Length;
+                mod -= 2;
+
+                points.RemoveAt(points.IndexOf(outerPoints[i]));
+
+                List<Line> lines = neighbor.outerPoints[j].fuse(outerPoints[i]);
+                outerPoints[i] = neighbor.outerPoints[j];
+
+                points.Add(outerPoints[i]);
+
+                foreach (var line in lines)
+                {
+                    this.lines.Remove(line);
+                }
+            }
+        }
+
         public Vector3 getStartingPositionVector3()
         {
             return new Vector3(startingPosition.x, 0, startingPosition.y);
@@ -174,7 +275,7 @@ public class HexagonalGrid : MonoBehaviour
             Point topPoint = null;
             for (int i = 0; i < points.Count && topPoint == null; i++)
             {
-                if (points[i].location == startingPosition + new Vector2(0, (size + 1) * H / 2))
+                if ((points[i].location-startingPosition + new Vector2(0, (((float)size) + 1) * H / 2)).magnitude < instance.pointEqualityMaxDistance)
                     topPoint = points[i];
             }
 
@@ -196,9 +297,9 @@ public class HexagonalGrid : MonoBehaviour
 
             for(int i = 2; i < outerPoints.Length; i++)
             {
-                foreach (var line in outerPoints[i-1].lines)
+                foreach (var line in outerPoints[i - 1].lines)
                 {
-                    if (line.p1.isExterior && !line.p1.Equals(outerPoints[i-1]) && !line.p1.Equals(outerPoints[i - 2]))
+                    if (line.p1.isExterior && !line.p1.Equals(outerPoints[i - 1]) && !line.p1.Equals(outerPoints[i - 2]))
                     {
                         outerPoints[i] = line.p1;
                         break;
@@ -328,8 +429,6 @@ public class HexagonalGrid : MonoBehaviour
 
         private void generateHex(float x, float y, bool withCenter)
         {
-
-
             Vector2 centre = new Vector2(x, y);
 
             Vector2[] points = new Vector2[6];
