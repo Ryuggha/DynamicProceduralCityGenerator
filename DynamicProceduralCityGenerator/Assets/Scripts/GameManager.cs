@@ -9,8 +9,6 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] bool GenerateRoads = true;
 
-    public GameObject o1, o2, o3;
-
     void Awake()
     {
         if (instance == null)

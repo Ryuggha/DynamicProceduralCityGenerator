@@ -183,13 +183,12 @@ public class Road
             {
                 Point end = lineOtherPoint[i];
                 Line line = possibleLines[i];
-                if (end.usedByCity)
+                Road auxRoad = null;
+                if (end.usedByCity) auxRoad = RoadGeneration.instance.findIntersection(end);
+                if (auxRoad != null)
                 {
-                    if (RoadGeneration.instance.findIntersection(end) == null)
-                        Debug.Log("t");
-                    Road auxRoad = RoadGeneration.instance.findIntersection(end);
                     Intersection endIntersection = auxRoad.getIntersectionStart();
-                    if (!endIntersection.getPosition().Equals(end.getLocationVector3())) endIntersection = auxRoad.getIntersectionEnd();
+                    if (!((endIntersection.getPosition() - end.getLocationVector3()).magnitude < HexagonalGrid.instance.pointEqualityMaxDistance)) endIntersection = auxRoad.getIntersectionEnd();
 
                     newRoads.Add(new Road(this, endIntersection, line, RoadGeneration.instance.calculateNewWidth(road.width, Vector3.Angle(road.getPositionEnd() - road.getPositionStart(), end.getLocationVector3() - this.getPosition()))));
                 }

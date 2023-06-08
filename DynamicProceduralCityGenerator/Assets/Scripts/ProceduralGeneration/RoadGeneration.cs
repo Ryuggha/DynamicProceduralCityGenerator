@@ -14,7 +14,8 @@ public class RoadGeneration : MonoBehaviour
     [SerializeField] [Range(0, 6)] public float straightRoadsBias;
     [SerializeField] AnimationCurve roadDiversionCurve;
 
-    [SerializeField] float TEST_ActivationDistance = 20;
+    [SerializeField] float automaticRoadExpansionDistance = 20;
+    [SerializeField] public LayerMask visibleLayers;
     
     public AnimationCurveSampler curveSampler;
 
@@ -30,17 +31,6 @@ public class RoadGeneration : MonoBehaviour
     private void OnDestroy()
     {
         if (instance == this) instance = null;
-    }
-
-    private void Update()
-    {
-        int c = 0;
-        foreach (var road in roadList)
-        {
-            c+=road.getVoidIntersections();
-        }
-
-        print(c);
     }
 
     public Vector3 InitializeRoads()
@@ -62,24 +52,35 @@ public class RoadGeneration : MonoBehaviour
     {
         if (openRoadList == null) return;
 
-
-        List<Road> roadsToOpen = new List<Road>(openRoadList);
-
-        for (int i = 0; i < roadsToOpen.Count; i++)
+        for (int i = openRoadList.Count - 1; i >= 0; i--)
         {
-            Road road = roadsToOpen[i];
-            if (    (road.getPositionStart() - PlayerInteraction.instance.getPlayerPosition()).magnitude < TEST_ActivationDistance ||
-                    (road.getPositionEnd() - PlayerInteraction.instance.getPlayerPosition()).magnitude < TEST_ActivationDistance)
+            if ((openRoadList[i].getPositionStart() - PlayerInteraction.instance.getPlayerPosition()).magnitude < automaticRoadExpansionDistance ||
+                (openRoadList[i].getPositionEnd() - PlayerInteraction.instance.getPlayerPosition()).magnitude < automaticRoadExpansionDistance)
             {
-                if (road != null && road.hasOpenRoads())
-                {
-                    var roads = road.expand();
-                    roadList.AddRange(roads);
-                    openRoadList.AddRange(roads);
-                }
+                expandRoad(i);
             }
-            
         }
+    }
+
+    public bool expandRoad(Road road)
+    {
+        return expandRoad(openRoadList.IndexOf(road));
+    }
+
+    public bool expandRoad(int i)
+    {
+        if (i < 0 || i >= openRoadList.Count) return false;
+
+        if (openRoadList[i] != null && openRoadList[i].hasOpenRoads())
+        {
+            Road road = openRoadList[i];
+            var roads = road.expand();
+            roadList.AddRange(roads);
+            openRoadList.AddRange(roads);
+        }
+        openRoadList.RemoveAt(i);
+
+        return true;
     }
 
     public Road findIntersection(Point point)
@@ -116,11 +117,15 @@ public class RoadGeneration : MonoBehaviour
         colGO.transform.position = road.getPositionStart();
         colGO.transform.LookAt(road.getPositionEnd(), Vector3.up);
 
+        RoadFrustrumSensor sensor = colGO.AddComponent<RoadFrustrumSensor>();
+        List<Collider> colList = new List<Collider>();
+
         Vector3 roadVector = road.getPositionEnd() - road.getPositionStart();
 
         for (float i = 0; i < roadVector.magnitude; i += road.getWidth() * .9f / 1.7f)
         {
             col = colGO.AddComponent<SphereCollider>();
+            colList.Add(col);
             col.isTrigger = true;
             col.center = new Vector3(0, 0, i);
             height = TerrainShape.instance.getSurfacePointAtPosition(col.bounds.center).y;
@@ -129,10 +134,13 @@ public class RoadGeneration : MonoBehaviour
         }
 
         col = colGO.AddComponent<SphereCollider>();
+        colList.Add(col);
         col.isTrigger = true;
         col.center = new Vector3(0, 0, roadVector.magnitude);
         height = TerrainShape.instance.getSurfacePointAtPosition(col.bounds.center).y;
         col.center = new Vector3(0, height, roadVector.magnitude);
         col.radius = road.getWidth() * .9f / 2;
+
+        sensor.Initialize(road, colList);
     }
 }

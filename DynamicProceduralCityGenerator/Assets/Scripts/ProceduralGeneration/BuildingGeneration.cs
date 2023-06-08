@@ -152,14 +152,6 @@ public class BuildingGeneration : MonoBehaviour
         }
         else
         {
-            /*var o = Instantiate(test);
-                o.transform.position = newBuilding.transform.position;
-                o.transform.rotation = newBuilding.transform.rotation;
-            foreach (var a in collisions)
-            {
-                o.GetComponent<Debuger>().debug = $"{a.gameObject} + {a.gameObject.transform.position}\n";
-            }
-            newBuilding.debug = "Building Moved";*/
             return testDeviation(newBuilding, deviationToTest, directionToMove, initialPosition, lastAvailablePosition);
         }
     }
