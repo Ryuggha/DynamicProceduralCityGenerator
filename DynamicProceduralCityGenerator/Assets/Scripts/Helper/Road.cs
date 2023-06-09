@@ -61,6 +61,11 @@ public class Road
     {
         BuildingGeneration.instance.populateRoad(this);
         populated = true;
+
+        if (intersectionStart.adjacentRoads.Count == 1) BuildingGeneration.instance.populateRoadEnd(this, intersectionStart.getPosition(), (intersectionEnd.getPosition() - intersectionStart.getPosition()).normalized);
+        if (intersectionEnd.adjacentRoads.Count == 1) BuildingGeneration.instance.populateRoadEnd(this, intersectionEnd.getPosition(), (intersectionStart.getPosition() - intersectionEnd.getPosition()).normalized);
+
+        DecorationManager.instance.decorateRoad(this);
     }
 
     public bool getPopulated() { return this.populated; }

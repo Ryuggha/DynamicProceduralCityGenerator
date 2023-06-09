@@ -9,6 +9,7 @@ public class BuildingGeneration : MonoBehaviour
     [SerializeField] List<GameObject> buildingList;
 
     [Header("Parameters")]
+    [SerializeField] GameObject buildingHolder;
     [SerializeField] float maxRotation = 5;
     [SerializeField] float initialDeviation = 2;
     [SerializeField] float finalDeviation = .1f;
@@ -31,7 +32,6 @@ public class BuildingGeneration : MonoBehaviour
 
     private bool generateBuilding(Vector3 buildingPosition, Vector3 directionToMove, Vector3 directionToFace, Vector3 initialPosition, Vector3 lastAvailablePosition)
     {
-        
         float colliderSize = -1;
         for (int i = 0; i < maxNumberOfGenerationTries; i++)
         {
@@ -42,6 +42,10 @@ public class BuildingGeneration : MonoBehaviour
             } while (colliderSize != -1 && auxBuilding.getColliderSize() >= colliderSize);
 
             BuildingBoundingBox newBuilding = Instantiate(auxBuilding.gameObject, buildingPosition, Quaternion.LookRotation(directionToFace, Vector3.up)).GetComponent<BuildingBoundingBox>();
+            if (buildingHolder != null)
+            {
+                newBuilding.transform.parent = buildingHolder.transform;
+            }
             newBuilding.getPositionZeroOfObject(newBuilding.getEntranceList()[Random.Range(0, newBuilding.getEntranceList().Count)].localPosition);
             newBuilding.transform.eulerAngles += new Vector3(0, Random.Range(-maxRotation, maxRotation), 0);
             newBuilding.transform.position = TerrainShape.instance.getSurfacePointAtPosition(newBuilding.transform.position);
@@ -50,6 +54,7 @@ public class BuildingGeneration : MonoBehaviour
             {
                 if (!testDeviation(newBuilding, initialDeviation, directionToMove, initialPosition, lastAvailablePosition))
                 {
+                    
                     Destroy(newBuilding.gameObject);
                     newBuilding = null;
                 }
@@ -123,6 +128,17 @@ public class BuildingGeneration : MonoBehaviour
             generateBuildingLayer(-perpendicularDirection, initialPosition, endPosition);
 
             perpendicularDirection *= -1;
+        }
+    }
+
+    public void populateRoadEnd(Road road, Vector3 buildingPosition, Vector3 directionToFace)
+    {
+        if (generateBuilding(buildingPosition + (directionToFace * road.getWidth()), -directionToFace, directionToFace, buildingPosition + (directionToFace * road.getWidth()), buildingPosition - (directionToFace * road.getWidth()*1.5f)))
+        {
+            foreach (var collider in lastBuildingBuilt.getFloorColliders())
+            {
+                TerrainShape.instance.generateBuildingFundations(collider, lastBuildingBuilt.transform.position);
+            }
         }
     }
 

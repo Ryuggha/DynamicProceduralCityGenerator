@@ -8,6 +8,7 @@ public class RoadGeneration : MonoBehaviour
     public static RoadGeneration instance;
 
     [Header("City Parameters")]
+    [SerializeField] GameObject RoadCollidersHolder;
     [SerializeField] [Range(0, 15)] public float maxWidth;
     [SerializeField] [Range(0, 15)] public float minWidth;
     [SerializeField] [Range(0, 15)] float initialWidth;
@@ -113,7 +114,11 @@ public class RoadGeneration : MonoBehaviour
         SphereCollider col;
         GameObject colGO = new GameObject($"Road - {road.getPositionStart()}:{road.getPositionEnd()}");
         colGO.layer = 14;
-        colGO.transform.parent = transform;
+        if (RoadCollidersHolder != null)
+        {
+            colGO.transform.parent = RoadCollidersHolder.transform;
+        }
+        
         colGO.transform.position = road.getPositionStart();
         colGO.transform.LookAt(road.getPositionEnd(), Vector3.up);
 

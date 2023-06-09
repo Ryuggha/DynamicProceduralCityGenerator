@@ -5,9 +5,10 @@ public class TerrainShape : MonoBehaviour
 {
     public static TerrainShape instance;
 
+    [SerializeField] GameObject terrainHolder;
     [SerializeField] int squareResolution = 256;
     [SerializeField] int size = 256;
-    [SerializeField] float altitude;
+    [SerializeField] public float altitude;
     [SerializeField] float scale;
     [SerializeField] TerrainLayer[] terrainLayers;
     [SerializeField] Material terrainMaterial;
@@ -62,7 +63,11 @@ public class TerrainShape : MonoBehaviour
 
         GameObject terGo = new GameObject($"Terrain - {x}:{y}");
         terGo.layer = 9;
-        terGo.transform.parent = transform;
+        if (terrainHolder != null)
+        {
+            terGo.transform.parent = terrainHolder.transform;
+        }
+        
         terGo.transform.position = new Vector3(x * size, 0, y * size);
 
         Terrain terrain = terGo.AddComponent<Terrain>();
