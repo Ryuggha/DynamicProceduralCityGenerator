@@ -22,6 +22,16 @@ public class PlayerInteraction : MonoBehaviour
         return playerObject.transform.position;
     }
 
+    public void InitializePlayer(Vector3 startPosition)
+    {
+        transform.GetChild(0).position = startPosition;
+
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            transform.GetChild(i).gameObject.SetActive(true);
+        }
+    }
+
     private void OnEnable()
     {
         Cursor.visible = false;

@@ -6,7 +6,6 @@ public class BuildingBoundingBox : MonoBehaviour
     [SerializeField] GameObject colliderHolder;
     [SerializeField] List<Transform> entranceGameObjectList;
     [SerializeField] GameObject floorHolder;
-    [SerializeField] GameObject model;
     GameObject elementsObject;
 
     List<Collider> colliderColliders;
@@ -22,18 +21,6 @@ public class BuildingBoundingBox : MonoBehaviour
         foreach (var collider in auxColliders)
         {
             if (collider.gameObject.layer == 12) colliderColliders.Add(collider); 
-        }
-    }
-
-    private void Update()
-    {
-        if ((PlayerInteraction.instance.getPlayerPosition() - model.transform.position).magnitude < Camera.main.farClipPlane)
-        {
-            model.SetActive(true);
-        }
-        else
-        {
-            model.SetActive(false);
         }
     }
 

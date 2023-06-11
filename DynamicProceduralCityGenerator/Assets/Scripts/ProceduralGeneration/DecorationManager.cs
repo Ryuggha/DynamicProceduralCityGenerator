@@ -37,16 +37,17 @@ public class DecorationManager : MonoBehaviour
 
             Vector3 position = Vector3.Lerp(road.getPositionStart(), road.getPositionEnd(), Random.Range(0f, 1f));
             Vector3 perpendicularDirection = Vector3.Cross((road.getPositionEnd() - road.getPositionStart()).normalized, Vector3.up).normalized;
-            position += Vector3.Lerp(-perpendicularDirection * floorDecorationSpacing, perpendicularDirection * floorDecorationSpacing, Random.Range(0f, 1f));
+            float displacement = Random.Range(0f, 1f);
+            position += Vector3.Lerp(-perpendicularDirection * floorDecorationSpacing * displacement, perpendicularDirection * floorDecorationSpacing * displacement, Random.Range(0f, 1f));
             
             RaycastHit hit;
             if (Physics.Raycast(position + Vector3.up * TerrainShape.instance.altitude * 2, Vector3.down, out hit, TerrainShape.instance.altitude * 2, terrainLayers)) {
+                
                 decor.transform.rotation = Quaternion.LookRotation(new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f)), hit.normal);
             }
             else
             {
                 decor.transform.rotation = Quaternion.Euler(0, Random.Range(-180f, 180f), 0);
-                Debug.Log("n" + position);
             }
 
             decor.transform.position = TerrainShape.instance.getSurfacePointAtPosition(position) + new Vector3(0, -.06f, 0);
