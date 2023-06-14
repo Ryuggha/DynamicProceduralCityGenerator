@@ -327,7 +327,6 @@ public class TerrainShape : MonoBehaviour
                     splatmapData[y, x, i] = splatWeights[i];
                 }
             }
-            //https://alastaira.wordpress.com/2013/11/14/procedural-terrain-splatmapping/
         }
 
         data.SetAlphamaps(0, 0, splatmapData);

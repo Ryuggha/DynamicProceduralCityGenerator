@@ -7,6 +7,7 @@ public class BuildingGeneration : MonoBehaviour
     public static BuildingGeneration instance;
 
     [SerializeField] List<GameObject> buildingList;
+    [SerializeField] List<float> weightProbabilityList;
 
     [Header("Parameters")]
     [SerializeField] GameObject buildingHolder;
@@ -38,7 +39,7 @@ public class BuildingGeneration : MonoBehaviour
             BuildingBoundingBox auxBuilding;
             do
             {
-                auxBuilding = buildingList[Random.Range(0, buildingList.Count)].GetComponent<BuildingBoundingBox>();
+                auxBuilding = getRandomBuilding();
             } while (colliderSize != -1 && auxBuilding.getColliderSize() >= colliderSize);
 
             BuildingBoundingBox newBuilding = Instantiate(auxBuilding.gameObject, buildingPosition, Quaternion.LookRotation(directionToFace, Vector3.up)).GetComponent<BuildingBoundingBox>();
@@ -63,6 +64,28 @@ public class BuildingGeneration : MonoBehaviour
             if (lastBuildingBuilt != null) return true;
         }
         return false;
+    }
+
+    private BuildingBoundingBox getRandomBuilding()
+    {
+        if (weightProbabilityList == null || weightProbabilityList.Count == 0 || weightProbabilityList.Count > buildingList.Count) return buildingList[Random.Range(0, buildingList.Count)].GetComponent<BuildingBoundingBox>();
+        else 
+        {
+            float sum = 0;
+            float random = -1;
+            foreach (float f in weightProbabilityList) sum += f;
+
+            random = Random.Range(0f, sum);
+            float aux = 0;
+
+            for (int i = 0; i < weightProbabilityList.Count; i++)
+            {
+                aux += weightProbabilityList[i];
+                if (aux >= random) return buildingList[i].GetComponent<BuildingBoundingBox>();
+            }
+        }
+
+        throw new System.Exception("There is no building with this weight");
     }
 
     public void generateBuildingLayer(Vector3 directionToFace, Vector3 initialPosition, Vector3 lastAvailablePosition)

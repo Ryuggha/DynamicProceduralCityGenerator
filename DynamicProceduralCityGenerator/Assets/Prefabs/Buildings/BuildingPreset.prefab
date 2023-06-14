@@ -216,7 +216,7 @@ GameObject:
   - component: {fileID: 905882102588762072}
   - component: {fileID: 5598829029104288944}
   m_Layer: 12
-  m_Name: Colliders
+  m_Name: GenerationColliders
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

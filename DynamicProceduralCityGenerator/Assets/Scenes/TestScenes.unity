@@ -1241,6 +1241,24 @@ MonoBehaviour:
   - {fileID: 1220250821488348872, guid: f6b46e4f5cd68d44bbbd8816877c54fb, type: 3}
   - {fileID: 1220250821488348872, guid: 84fdb134f8110774987aa85a500fecfd, type: 3}
   - {fileID: 1220250821488348872, guid: 82d68128d15bb0642acfa48cc1e00abe, type: 3}
+  weightProbabilityList:
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
+  - 1
   buildingHolder: {fileID: 648097558}
   maxRotation: 5
   initialDeviation: 0.1
