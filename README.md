@@ -10,10 +10,10 @@ The following seccion describes both the instructions to use the tool, and the d
 
 ## Instalation
 This Tool has been designed to be used in the Unity Engine environment.
-**Step 1**. Download the tool using the following link: https://drive.google.com/file/d/1CJ2DCpTZ3su0GTCtyC889WOkzlml5TR_/view?usp=sharing
-**Step 2**. Download and install the Unity Engine Editor.
-**Step 3**. Start the editor.
-**Step 4**. Import the tool to the editor. This can be done opening the file downloaded, or dragging the file to the editor.
+<br>**Step 1**. Download the tool using the following link: https://drive.google.com/file/d/1CJ2DCpTZ3su0GTCtyC889WOkzlml5TR_/view?usp=sharing
+<br>**Step 2**. Download and install the Unity Engine Editor.
+<br>**Step 3**. Start the editor.
+<br>**Step 4**. Import the tool to the editor. This can be done opening the file downloaded, or dragging the file to the editor.
 
 ## Layer Definition
 This tool uses various _layers_ to make searches and physics calculations more efficiently. Therefore, the user must define those _layers_ and apply them to the configuration of derivate objects.
