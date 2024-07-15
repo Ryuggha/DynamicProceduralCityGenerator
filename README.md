@@ -22,7 +22,7 @@ Those _layers_ are:
 - **Road Colliders**: Used to detect roads.
 - **Building Colliders**: Used to detect and place buildings.
 
-##Initial Configuration
+## Initial Configuration
 To use the tool, first the scene on which the tool is being used must be configured.
 **Step 1**. Import the _prefab_ called "DynamicProceduralUrbanGeneratorManager.prefab" to the scene.
 **Step 2**. Add one or more buildings and signal the probability of each one on the appropiate parameter.
